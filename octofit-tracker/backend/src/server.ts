@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 
 import { app, getApiUrl } from './app';
-import { connectDatabase, mongoUri } from './database';
+import { connectDatabase, mongoUri } from './config/database';
 
 dotenv.config();
 
