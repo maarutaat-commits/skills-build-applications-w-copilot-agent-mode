@@ -1,6 +1,12 @@
 import cors from 'cors';
 import express, { Request, Response } from 'express';
 
+import { Activity } from './models/Activity';
+import { Leaderboard } from './models/Leaderboard';
+import { Team } from './models/Team';
+import { User } from './models/User';
+import { Workout } from './models/Workout';
+
 const app = express();
 
 const getApiUrl = (): string => {
@@ -27,91 +33,121 @@ app.get('/api/health', (_request: Request, response: Response) => {
 });
 
 // Users endpoints
-app.get('/api/users/', (_request: Request, response: Response) => {
-  response.json({ items: [], resource: 'users' });
+app.get('/api/users/', async (_request: Request, response: Response) => {
+  const items = await User.find().select('-password');
+  response.json(items);
 });
 
-app.post('/api/users/', (request: Request, response: Response) => {
-  response.status(201).json({ id: 1, ...(request.body || {}), resource: 'users' });
+app.post('/api/users/', async (request: Request, response: Response) => {
+  const user = await User.create(request.body);
+  const { password: _pw, ...safe } = user.toObject();
+  response.status(201).json(safe);
 });
 
-app.get('/api/users/:id', (request: Request, response: Response) => {
-  response.json({ id: request.params.id, resource: 'users' });
+app.get('/api/users/:id', async (request: Request, response: Response) => {
+  const user = await User.findById(request.params.id).select('-password');
+  if (!user) { response.status(404).json({ error: 'User not found' }); return; }
+  response.json(user);
 });
 
-app.put('/api/users/:id', (request: Request, response: Response) => {
-  response.json({ id: request.params.id, ...request.body, resource: 'users' });
+app.put('/api/users/:id', async (request: Request, response: Response) => {
+  const user = await User.findByIdAndUpdate(request.params.id, request.body, { new: true }).select('-password');
+  if (!user) { response.status(404).json({ error: 'User not found' }); return; }
+  response.json(user);
 });
 
-app.delete('/api/users/:id', (request: Request, response: Response) => {
+app.delete('/api/users/:id', async (request: Request, response: Response) => {
+  await User.findByIdAndDelete(request.params.id);
   response.status(204).send();
 });
 
 // Teams endpoints
-app.get('/api/teams/', (_request: Request, response: Response) => {
-  response.json({ items: [], resource: 'teams' });
+app.get('/api/teams/', async (_request: Request, response: Response) => {
+  const items = await Team.find().populate('members', '-password');
+  response.json(items);
 });
 
-app.post('/api/teams/', (request: Request, response: Response) => {
-  response.status(201).json({ id: 1, ...(request.body || {}), resource: 'teams' });
+app.post('/api/teams/', async (request: Request, response: Response) => {
+  const team = await Team.create(request.body);
+  response.status(201).json(team);
 });
 
-app.get('/api/teams/:id', (request: Request, response: Response) => {
-  response.json({ id: request.params.id, resource: 'teams' });
+app.get('/api/teams/:id', async (request: Request, response: Response) => {
+  const team = await Team.findById(request.params.id).populate('members', '-password');
+  if (!team) { response.status(404).json({ error: 'Team not found' }); return; }
+  response.json(team);
 });
 
-app.put('/api/teams/:id', (request: Request, response: Response) => {
-  response.json({ id: request.params.id, ...request.body, resource: 'teams' });
+app.put('/api/teams/:id', async (request: Request, response: Response) => {
+  const team = await Team.findByIdAndUpdate(request.params.id, request.body, { new: true });
+  if (!team) { response.status(404).json({ error: 'Team not found' }); return; }
+  response.json(team);
 });
 
-app.delete('/api/teams/:id', (request: Request, response: Response) => {
+app.delete('/api/teams/:id', async (request: Request, response: Response) => {
+  await Team.findByIdAndDelete(request.params.id);
   response.status(204).send();
 });
 
 // Activities endpoints
-app.get('/api/activities/', (_request: Request, response: Response) => {
-  response.json({ items: [], resource: 'activities' });
+app.get('/api/activities/', async (_request: Request, response: Response) => {
+  const items = await Activity.find().populate('user', '-password').sort({ date: -1 });
+  response.json(items);
 });
 
-app.post('/api/activities/', (request: Request, response: Response) => {
-  response.status(201).json({ id: 1, ...(request.body || {}), resource: 'activities' });
+app.post('/api/activities/', async (request: Request, response: Response) => {
+  const activity = await Activity.create(request.body);
+  response.status(201).json(activity);
 });
 
-app.get('/api/activities/:id', (request: Request, response: Response) => {
-  response.json({ id: request.params.id, resource: 'activities' });
+app.get('/api/activities/:id', async (request: Request, response: Response) => {
+  const activity = await Activity.findById(request.params.id).populate('user', '-password');
+  if (!activity) { response.status(404).json({ error: 'Activity not found' }); return; }
+  response.json(activity);
 });
 
-app.put('/api/activities/:id', (request: Request, response: Response) => {
-  response.json({ id: request.params.id, ...request.body, resource: 'activities' });
+app.put('/api/activities/:id', async (request: Request, response: Response) => {
+  const activity = await Activity.findByIdAndUpdate(request.params.id, request.body, { new: true });
+  if (!activity) { response.status(404).json({ error: 'Activity not found' }); return; }
+  response.json(activity);
 });
 
-app.delete('/api/activities/:id', (request: Request, response: Response) => {
+app.delete('/api/activities/:id', async (request: Request, response: Response) => {
+  await Activity.findByIdAndDelete(request.params.id);
   response.status(204).send();
 });
 
 // Leaderboard endpoints
-app.get('/api/leaderboard/', (_request: Request, response: Response) => {
-  response.json({ items: [], resource: 'leaderboard' });
+app.get('/api/leaderboard/', async (_request: Request, response: Response) => {
+  const items = await Leaderboard.find().populate('user', '-password').sort({ rank: 1 });
+  response.json(items);
 });
 
 // Workouts endpoints
-app.get('/api/workouts/', (_request: Request, response: Response) => {
-  response.json({ items: [], resource: 'workouts' });
+app.get('/api/workouts/', async (_request: Request, response: Response) => {
+  const items = await Workout.find();
+  response.json(items);
 });
 
-app.post('/api/workouts/', (request: Request, response: Response) => {
-  response.status(201).json({ id: 1, ...(request.body || {}), resource: 'workouts' });
+app.post('/api/workouts/', async (request: Request, response: Response) => {
+  const workout = await Workout.create(request.body);
+  response.status(201).json(workout);
 });
 
-app.get('/api/workouts/:id', (request: Request, response: Response) => {
-  response.json({ id: request.params.id, resource: 'workouts' });
+app.get('/api/workouts/:id', async (request: Request, response: Response) => {
+  const workout = await Workout.findById(request.params.id);
+  if (!workout) { response.status(404).json({ error: 'Workout not found' }); return; }
+  response.json(workout);
 });
 
-app.put('/api/workouts/:id', (request: Request, response: Response) => {
-  response.json({ id: request.params.id, ...request.body, resource: 'workouts' });
+app.put('/api/workouts/:id', async (request: Request, response: Response) => {
+  const workout = await Workout.findByIdAndUpdate(request.params.id, request.body, { new: true });
+  if (!workout) { response.status(404).json({ error: 'Workout not found' }); return; }
+  response.json(workout);
 });
 
-app.delete('/api/workouts/:id', (request: Request, response: Response) => {
+app.delete('/api/workouts/:id', async (request: Request, response: Response) => {
+  await Workout.findByIdAndDelete(request.params.id);
   response.status(204).send();
 });
 

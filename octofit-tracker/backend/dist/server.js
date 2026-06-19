@@ -8,7 +8,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const app_1 = require("./app");
 dotenv_1.default.config();
 const port = Number(process.env.PORT ?? 8000);
-const mongoUri = process.env.MONGODB_URI ?? 'mongodb://127.0.0.1:27017/octofit-tracker';
+const mongoUri = process.env.MONGODB_URI ?? 'mongodb://127.0.0.1:27017/octofit_db';
 async function startServer() {
     try {
         await mongoose_1.default.connect(mongoUri);
