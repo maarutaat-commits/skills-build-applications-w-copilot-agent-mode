@@ -1,6 +1,7 @@
 import cors from 'cors';
 import express, { Request, Response } from 'express';
 
+import { isDatabaseConnected } from './config/database';
 import { Activity } from './models/Activity';
 import { Leaderboard } from './models/Leaderboard';
 import { Team } from './models/Team';
@@ -11,10 +12,22 @@ const app = express();
 
 const getApiUrl = (): string => {
   if (process.env.CODESPACE_NAME) {
-    return `https://${process.env.CODESPACE_NAME}-8000.${process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN || 'githubpreview.dev'}`;
+    return `https://${process.env.CODESPACE_NAME}-8000.app.github.dev`;
   }
   return process.env.API_URL ?? 'http://localhost:8000';
 };
+
+function ensureDatabase(response: Response): boolean {
+  if (isDatabaseConnected()) {
+    return true;
+  }
+
+  response.status(503).json({
+    error: 'Database unavailable',
+    message: 'MongoDB is not connected on port 27017.',
+  });
+  return false;
+}
 
 app.use(
   cors({
@@ -34,6 +47,9 @@ app.get('/api/health', (_request: Request, response: Response) => {
 
 // Users endpoints
 app.get('/api/users/', async (_request: Request, response: Response) => {
+  if (!ensureDatabase(response)) {
+    return;
+  }
   const items = await User.find().select('-password');
   response.json(items);
 });
@@ -91,6 +107,9 @@ app.delete('/api/teams/:id', async (request: Request, response: Response) => {
 
 // Activities endpoints
 app.get('/api/activities/', async (_request: Request, response: Response) => {
+  if (!ensureDatabase(response)) {
+    return;
+  }
   const items = await Activity.find().populate('user', '-password').sort({ date: -1 });
   response.json(items);
 });
