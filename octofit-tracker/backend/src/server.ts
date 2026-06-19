@@ -1,11 +1,19 @@
 import dotenv from 'dotenv';
 
-import { app, getApiUrl } from './app';
+import { app } from './app';
 import { connectDatabase, mongoUri } from './config/database';
 
 dotenv.config();
 
 const port = Number(process.env.PORT ?? 8000);
+
+function getServerApiUrl(): string {
+  if (process.env.CODESPACE_NAME) {
+    return `https://${process.env.CODESPACE_NAME}-8000.app.github.dev`;
+  }
+
+  return 'http://localhost:8000';
+}
 
 async function startServer() {
   try {
@@ -17,7 +25,7 @@ async function startServer() {
   }
 
   app.listen(port, '0.0.0.0', () => {
-    const apiUrl = getApiUrl();
+    const apiUrl = getServerApiUrl();
     console.log('');
     console.log('-----------------------------------------------------------');
     console.log('OctoFit Tracker API');

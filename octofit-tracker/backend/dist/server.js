@@ -8,6 +8,12 @@ const app_1 = require("./app");
 const database_1 = require("./config/database");
 dotenv_1.default.config();
 const port = Number(process.env.PORT ?? 8000);
+function getServerApiUrl() {
+    if (process.env.CODESPACE_NAME) {
+        return `https://${process.env.CODESPACE_NAME}-8000.app.github.dev`;
+    }
+    return 'http://localhost:8000';
+}
 async function startServer() {
     try {
         await (0, database_1.connectDatabase)();
@@ -18,7 +24,7 @@ async function startServer() {
         console.warn(error);
     }
     app_1.app.listen(port, '0.0.0.0', () => {
-        const apiUrl = (0, app_1.getApiUrl)();
+        const apiUrl = getServerApiUrl();
         console.log('');
         console.log('-----------------------------------------------------------');
         console.log('OctoFit Tracker API');
