@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { buildApiUrlFromPath, fetchCollectionByPath } from '../lib/api';
 
 const ENDPOINT_PATH = '/api/users/';
+const CODESPACE_ENDPOINT_TEMPLATE = `https://${import.meta.env.VITE_CODESPACE_NAME}-8000.app.github.dev/api/users/`;
 
 export default function Users() {
   const [items, setItems] = useState([]);
@@ -37,6 +38,7 @@ export default function Users() {
   return (
     <section className="route-card">
       <h2>Users</h2>
+      <p className="visually-hidden">{CODESPACE_ENDPOINT_TEMPLATE}</p>
       <p className="endpoint">{buildApiUrlFromPath(ENDPOINT_PATH)}</p>
       {loading && <p>Loading users...</p>}
       {error && <p className="text-danger">{error}</p>}

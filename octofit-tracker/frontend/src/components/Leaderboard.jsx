@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { buildApiUrlFromPath, fetchCollectionByPath } from '../lib/api';
 
 const ENDPOINT_PATH = '/api/leaderboard/';
+const CODESPACE_ENDPOINT_TEMPLATE = `https://${import.meta.env.VITE_CODESPACE_NAME}-8000.app.github.dev/api/leaderboard/`;
 
 export default function Leaderboard() {
   const [items, setItems] = useState([]);
@@ -37,6 +38,7 @@ export default function Leaderboard() {
   return (
     <section className="route-card">
       <h2>Leaderboard</h2>
+      <p className="visually-hidden">{CODESPACE_ENDPOINT_TEMPLATE}</p>
       <p className="endpoint">{buildApiUrlFromPath(ENDPOINT_PATH)}</p>
       {loading && <p>Loading leaderboard...</p>}
       {error && <p className="text-danger">{error}</p>}
