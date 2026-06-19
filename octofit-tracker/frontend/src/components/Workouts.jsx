@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { buildApiUrl, fetchCollection } from '../lib/api';
+import { buildApiUrlFromPath, fetchCollectionByPath } from '../lib/api';
+
+const ENDPOINT_PATH = '/api/workouts/';
 
 export default function Workouts() {
   const [items, setItems] = useState([]);
@@ -10,7 +12,7 @@ export default function Workouts() {
   useEffect(() => {
     let mounted = true;
 
-    fetchCollection('workouts')
+    fetchCollectionByPath(ENDPOINT_PATH)
       .then((data) => {
         if (mounted) {
           setItems(data);
@@ -35,7 +37,7 @@ export default function Workouts() {
   return (
     <section className="route-card">
       <h2>Workouts</h2>
-      <p className="endpoint">{buildApiUrl('workouts')}</p>
+      <p className="endpoint">{buildApiUrlFromPath(ENDPOINT_PATH)}</p>
       {loading && <p>Loading workouts...</p>}
       {error && <p className="text-danger">{error}</p>}
       {!loading && !error && (

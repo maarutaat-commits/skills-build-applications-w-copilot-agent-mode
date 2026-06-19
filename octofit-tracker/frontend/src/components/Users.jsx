@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { buildApiUrl, fetchCollection } from '../lib/api';
+import { buildApiUrlFromPath, fetchCollectionByPath } from '../lib/api';
+
+const ENDPOINT_PATH = '/api/users/';
 
 export default function Users() {
   const [items, setItems] = useState([]);
@@ -10,7 +12,7 @@ export default function Users() {
   useEffect(() => {
     let mounted = true;
 
-    fetchCollection('users')
+    fetchCollectionByPath(ENDPOINT_PATH)
       .then((data) => {
         if (mounted) {
           setItems(data);
@@ -35,7 +37,7 @@ export default function Users() {
   return (
     <section className="route-card">
       <h2>Users</h2>
-      <p className="endpoint">{buildApiUrl('users')}</p>
+      <p className="endpoint">{buildApiUrlFromPath(ENDPOINT_PATH)}</p>
       {loading && <p>Loading users...</p>}
       {error && <p className="text-danger">{error}</p>}
       {!loading && !error && (

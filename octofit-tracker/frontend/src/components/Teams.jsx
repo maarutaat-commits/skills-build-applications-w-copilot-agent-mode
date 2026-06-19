@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { buildApiUrl, fetchCollection } from '../lib/api';
+import { buildApiUrlFromPath, fetchCollectionByPath } from '../lib/api';
+
+const ENDPOINT_PATH = '/api/teams/';
 
 export default function Teams() {
   const [items, setItems] = useState([]);
@@ -10,7 +12,7 @@ export default function Teams() {
   useEffect(() => {
     let mounted = true;
 
-    fetchCollection('teams')
+    fetchCollectionByPath(ENDPOINT_PATH)
       .then((data) => {
         if (mounted) {
           setItems(data);
@@ -35,7 +37,7 @@ export default function Teams() {
   return (
     <section className="route-card">
       <h2>Teams</h2>
-      <p className="endpoint">{buildApiUrl('teams')}</p>
+      <p className="endpoint">{buildApiUrlFromPath(ENDPOINT_PATH)}</p>
       {loading && <p>Loading teams...</p>}
       {error && <p className="text-danger">{error}</p>}
       {!loading && !error && (

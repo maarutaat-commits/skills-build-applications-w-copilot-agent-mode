@@ -10,6 +10,11 @@ export function buildApiUrl(componentName) {
   return `${apiBaseUrl}/${componentName}/`;
 }
 
+export function buildApiUrlFromPath(endpointPath) {
+  const sanitized = endpointPath.replace(/^\/api\//, '').replace(/^\/+|\/+$/g, '');
+  return `${apiBaseUrl}/${sanitized}/`;
+}
+
 export function normalizeCollection(payload) {
   if (Array.isArray(payload)) {
     return payload;
@@ -39,6 +44,17 @@ export async function fetchCollection(componentName) {
 
   if (!response.ok) {
     throw new Error(`Request failed (${response.status}) for ${componentName}`);
+  }
+
+  const payload = await response.json();
+  return normalizeCollection(payload);
+}
+
+export async function fetchCollectionByPath(endpointPath) {
+  const response = await fetch(buildApiUrlFromPath(endpointPath));
+
+  if (!response.ok) {
+    throw new Error(`Request failed (${response.status}) for ${endpointPath}`);
   }
 
   const payload = await response.json();
