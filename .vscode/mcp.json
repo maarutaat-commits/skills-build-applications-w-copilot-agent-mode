@@ -1,0 +1,17 @@
+{
+  "servers": {
+    "desktop-commander": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "--registry",
+        "https://registry.npmjs.org",
+        "@wonderwhy-er/desktop-commander@0.2.42"
+      ]
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
+    }
+  }
+}
